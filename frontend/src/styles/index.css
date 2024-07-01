@@ -2,13 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --brand-primary: #c1292e;
+  --brand-background: #ffffff;
+  --brand-active: #c1292e;
+  --brand-header-background: #e2e1e1;
+  --primary-red: #c1292e;
+  --red-hover: #c1292e;
+  --primary-white: #ffffff;
+  --white-hover: #f2f2f2;
+
+  --dark-primary: #c1292e;
+  --dark-background: #1a1a1a;
+  --dark-active: #c1292e;
+  --dark-header-background: #333333;
+  --dark-red: #c1292e;
+  --dark-red-hover: #a02626;
+  --dark-white: #e2e2e2;
+}
+
 @layer base {
   html,
   body,
   #root {
-    @apply h-full;
+    @apply h-full text-gray-800;
   }
-  h1 {
+  c h1 {
     @apply text-2xl;
   }
   h2 {
@@ -18,33 +37,53 @@
     @apply text-lg;
   }
   a {
-    @apply text-blue-600 underline;
+    @apply text-brand-primary underline;
+  }
+
+  .dark {
+    background-color: var(--dark-background);
+    color: var(--dark-white);
+  }
+
+  .dark h1,
+  .dark h2,
+  .dark h3,
+  .dark a {
+    color: var(--dark-white);
   }
 }
 
 @layer components {
   .btn {
-    @apply p-3 bg-blue-500 rounded-md focus:outline-none text-white;
-    @apply hover:bg-blue-700 transition-all;
+    @apply p-3 bg-brand-primary rounded-md focus:outline-none text-white;
+    @apply hover:bg-brand-red-hover transition-all;
     @apply focus:ring disabled:opacity-50;
   }
   .btn.danger {
-    @apply bg-red-500 hover:bg-red-700;
+    @apply bg-brand-red hover:bg-brand-red-hover;
   }
   .input {
-    @apply rounded-md border-gray-300 transition-colors disabled:opacity-50;
+    @apply rounded-md bg-gray-200 border-gray-300 transition-colors disabled:opacity-50;
+    @apply dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:border-brand-primary dark:focus:ring-brand-primary;
   }
   .card {
     @apply p-5 rounded-md bg-white border;
+    @apply dark:bg-dark-background dark:border-gray-600;
   }
   .table-container {
-    @apply border rounded-lg mt-5 shadow overflow-x-auto;
+    @apply border rounded-lg mt-5 shadow overflow-x-auto bg-white;
+    @apply dark:bg-dark-background dark:border-gray-600;
+  }
+  .table-row {
+    @apply dark:text-dark-white;
   }
   .table-filter {
-    @apply flex flex-col lg:flex-row gap-5 rounded-lg p-3 shadow overflow-x-auto border;
+    @apply flex flex-col lg:flex-row gap-5 rounded-lg p-3 shadow overflow-x-auto border bg-gray-100;
+    @apply dark:bg-dark-header-background dark:border-gray-600;
   }
   .sidebar {
-    @apply fixed h-full w-72 p-5 shadow flex flex-col transform -translate-x-72 bg-white lg:translate-x-0 transition-transform;
+    @apply fixed h-full w-72 p-5 shadow flex flex-col transform -translate-x-72 bg-white text-gray-800 lg:translate-x-0 transition-transform;
+    @apply dark:bg-dark-background dark:text-dark-white;
   }
   .sidebar.show {
     @apply translate-x-0 !important;

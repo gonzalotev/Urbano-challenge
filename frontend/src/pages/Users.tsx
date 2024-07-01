@@ -1,11 +1,9 @@
-import { useState } from 'react';
-import { Loader, Plus, X } from 'react-feather';
+import { useEffect, useState } from 'react';
+import { Loader, Plus, RefreshCw, User, X } from 'react-feather';
 import { useForm } from 'react-hook-form';
 import { useQuery } from 'react-query';
 
-import Layout from '../components/layout';
-import Modal from '../components/shared/Modal';
-import UsersTable from '../components/users/UsersTable';
+import { Layout, Modal, ThemeButton, UsersTable } from '../components';
 import useAuth from '../hooks/useAuth';
 import CreateUserRequest from '../models/user/CreateUserRequest';
 import userService from '../services/UserService';
@@ -21,22 +19,36 @@ export default function Users() {
   const [addUserShow, setAddUserShow] = useState<boolean>(false);
   const [error, setError] = useState<string>();
 
-  const { data, isLoading } = useQuery(
+  const { data, isLoading, refetch } = useQuery(
     ['users', firstName, lastName, username, role],
     async () => {
       return (
         await userService.findAll({
-          firstName: firstName || undefined,
-          lastName: lastName || undefined,
-          username: username || undefined,
+          firstName: firstName.length >= 3 ? firstName : undefined,
+          lastName: lastName.length >= 3 ? lastName : undefined,
+          username: username.length >= 3 ? username : undefined,
           role: role || undefined,
         })
       ).filter((user) => user.id !== authenticatedUser.id);
     },
-    {
-      refetchInterval: 1000,
-    },
   );
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (
+        firstName.length >= 3 ||
+        lastName.length >= 3 ||
+        username.length >= 3 ||
+        role
+      ) {
+        refetch();
+      }
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [firstName, lastName, username, role, refetch]);
 
   const {
     register,
@@ -51,6 +63,7 @@ export default function Users() {
       setAddUserShow(false);
       setError(null);
       reset();
+      refetch();
     } catch (error) {
       setError(error.response.data.message);
     }
@@ -58,14 +71,29 @@ export default function Users() {
 
   return (
     <Layout>
-      <h1 className="font-semibold text-3xl mb-5">Manage Users</h1>
-      <hr />
-      <button
-        className="btn my-5 flex gap-2 w-full sm:w-auto justify-center"
-        onClick={() => setAddUserShow(true)}
-      >
-        <Plus /> Add User
-      </button>
+      <div className="flex justify-between items-center mb-5">
+        <div className="flex items-center gap-2">
+          <User className="text-brand-primary" size={36} />
+          <h1 className="font-semibold text-3xl">Manage Users</h1>
+        </div>
+        <ThemeButton />
+      </div>
+      <hr className="border-brand-active mb-5" />
+      <div className="flex flex-col sm:flex-row gap-2 justify-between my-5">
+        <button
+          className="btn flex gap-2 w-full sm:w-auto justify-center"
+          onClick={() => setAddUserShow(true)}
+        >
+          <Plus /> Add User
+        </button>
+
+        <button
+          className="btn flex gap-2 w-full sm:w-auto justify-center"
+          onClick={() => refetch()}
+        >
+          <RefreshCw /> Refresh
+        </button>
+      </div>
 
       <div className="table-filter mt-2">
         <div className="flex flex-row gap-5">
@@ -111,7 +139,7 @@ export default function Users() {
 
       {/* Add User Modal */}
       <Modal show={addUserShow}>
-        <div className="flex">
+        <div className="flex items-center">
           <h1 className="font-semibold mb-3">Add User</h1>
           <button
             className="ml-auto focus:outline-none"
@@ -124,7 +152,7 @@ export default function Users() {
             <X size={30} />
           </button>
         </div>
-        <hr />
+        <hr className="border-brand-active mb-5" />
 
         <form
           className="flex flex-col gap-5 mt-5"

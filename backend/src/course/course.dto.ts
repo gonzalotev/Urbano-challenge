@@ -8,6 +8,9 @@ export class CreateCourseDto {
   @IsNotEmpty()
   @IsString()
   description: string;
+
+  @IsString()
+  imageUrl: string;
 }
 
 export class UpdateCourseDto {
@@ -20,4 +23,8 @@ export class UpdateCourseDto {
   @IsNotEmpty()
   @IsString()
   description?: string;
+
+  @IsOptional()
+  @IsString()
+  imageUrl?: string;
 }

@@ -1,12 +1,10 @@
 import { useState } from 'react';
-import { Loader, Plus, X } from 'react-feather';
+import { Loader, Plus, RefreshCw, X } from 'react-feather';
 import { useForm } from 'react-hook-form';
 import { useQuery } from 'react-query';
 import { useParams } from 'react-router';
 
-import ContentsTable from '../components/content/ContentsTable';
-import Layout from '../components/layout';
-import Modal from '../components/shared/Modal';
+import { ContentsTable, Layout, Modal, ThemeButton } from '../components';
 import useAuth from '../hooks/useAuth';
 import CreateContentRequest from '../models/content/CreateContentRequest';
 import contentService from '../services/ContentService';
@@ -30,16 +28,13 @@ export default function Course() {
     reset,
   } = useForm<CreateContentRequest>();
 
-  const { data, isLoading } = useQuery(
+  const { data, isLoading, refetch } = useQuery(
     [`contents-${id}`, name, description],
     async () =>
       contentService.findAll(id, {
         name: name || undefined,
         description: description || undefined,
       }),
-    {
-      refetchInterval: 1000,
-    },
   );
 
   const saveCourse = async (createContentRequest: CreateContentRequest) => {
@@ -48,6 +43,7 @@ export default function Course() {
       setAddContentShow(false);
       reset();
       setError(null);
+      refetch();
     } catch (error) {
       setError(error.response.data.message);
     }
@@ -55,19 +51,29 @@ export default function Course() {
 
   return (
     <Layout>
-      <h1 className="font-semibold text-3xl mb-5">
-        {!userQuery.isLoading ? `${userQuery.data.name} Contents` : ''}
-      </h1>
+      <div className="flex justify-between items-center mb-5">
+        <h1 className="font-semibold text-3xl">
+          {!userQuery.isLoading ? `${userQuery.data.name} Contents` : ''}
+        </h1>
+        <ThemeButton />
+      </div>
       <hr />
       {authenticatedUser.role !== 'user' ? (
-        <button
-          className="btn my-5 flex gap-2 w-full sm:w-auto justify-center"
-          onClick={() => setAddContentShow(true)}
-        >
-          <Plus /> Add Content
-        </button>
+        <div className="flex flex-col sm:flex-row gap-2 justify-between my-5">
+          <button
+            className="btn flex gap-2 w-full sm:w-auto justify-center"
+            onClick={() => setAddContentShow(true)}
+          >
+            <Plus /> Add Content
+          </button>
+          <button
+            className="btn flex gap-2 w-full sm:w-auto justify-center"
+            onClick={() => refetch()}
+          >
+            <RefreshCw /> Refresh
+          </button>
+        </div>
       ) : null}
-
       <div className="table-filter">
         <div className="flex flex-row gap-5">
           <input

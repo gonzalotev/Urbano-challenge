@@ -1,23 +1,36 @@
 import { ReactNode } from 'react';
 
+import TableHeaderItem from './TableHeaderItem';
+
 interface TableProps {
   columns: string[];
   children: ReactNode;
+  orderBy: string;
+  order: 'asc' | 'desc';
+  onSort: (field: string) => void;
 }
 
-export default function Table({ columns, children }: TableProps) {
+export default function Table({
+  columns,
+  children,
+  orderBy,
+  order,
+  onSort,
+}: TableProps) {
   return (
     <table className="min-w-full divide-y divide-gray-200">
-      <thead>
+      <thead className="dark:text-white">
         <tr>
           {columns.map((column, index) => (
-            <th
+            <TableHeaderItem
               key={index}
-              scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              field={column.toLowerCase()}
+              orderBy={orderBy}
+              order={order}
+              onSort={onSort}
             >
               {column}
-            </th>
+            </TableHeaderItem>
           ))}
           <th scope="col" className="relative px-6 py-3">
             <span className="sr-only">Edit</span>

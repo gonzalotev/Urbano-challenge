@@ -4,7 +4,7 @@ import CreateCourseRequest from '../models/course/CreateCourseRequest';
 import UpdateCourseRequest from '../models/course/UpdateCourseRequest';
 import apiService from './ApiService';
 
-class UserService {
+class CourseService {
   async save(createCourseRequest: CreateCourseRequest): Promise<void> {
     await apiService.post('/api/courses', createCourseRequest);
   }
@@ -31,4 +31,4 @@ class UserService {
   }
 }
 
-export default new UserService();
+export default new CourseService();

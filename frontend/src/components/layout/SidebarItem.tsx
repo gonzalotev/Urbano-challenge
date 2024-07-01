@@ -16,11 +16,13 @@ export default function SidebarItem({
   return (
     <Link
       to={to}
-      className="no-underline text-black hover:bg-gray-300 rounded-md p-3 transition-colors"
+      className={`btn flex items-center gap-2 w-full sm:w-auto justify-between no-underline text-black ${
+        active ? 'bg-gray-200' : ''
+      }`}
     >
-      <span className="flex gap-5 font-semibold">
-        {children} {active ? <ChevronRight /> : null}
-      </span>
+      <div className="flex-shrink-0 text-2xl">{children[0]}</div>
+      <span className="flex-grow text-center font-semibold">{children[1]}</span>
+      {active ? <ChevronRight className="text-lg" /> : <div className="w-6" />}
     </Link>
   );
 }

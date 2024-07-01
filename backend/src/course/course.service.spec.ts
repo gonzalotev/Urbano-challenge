@@ -78,6 +78,7 @@ describe('CourseService', () => {
       const created = await service.save({
         name: 'test',
         description: 'test',
+        imageUrl:'http://test.com'
       });
       expect(created.id).toBe('testid');
       expect(created.name).toBe('test');

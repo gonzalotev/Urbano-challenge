@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import { Loader, Plus, X } from 'react-feather';
+import { BookOpen, Loader, Plus, RefreshCw, X } from 'react-feather';
 import { useForm } from 'react-hook-form';
 import { useQuery } from 'react-query';
 
-import CoursesTable from '../components/courses/CoursesTable';
-import Layout from '../components/layout';
-import Modal from '../components/shared/Modal';
+import { CoursesTable, Layout, Modal, ThemeButton } from '../components';
 import useAuth from '../hooks/useAuth';
 import CreateCourseRequest from '../models/course/CreateCourseRequest';
 import courseService from '../services/CourseService';
@@ -18,16 +16,13 @@ export default function Courses() {
   const [error, setError] = useState<string>();
 
   const { authenticatedUser } = useAuth();
-  const { data, isLoading } = useQuery(
+  const { data, isLoading, refetch } = useQuery(
     ['courses', name, description],
     () =>
       courseService.findAll({
         name: name || undefined,
         description: description || undefined,
       }),
-    {
-      refetchInterval: 1000,
-    },
   );
 
   const {
@@ -43,6 +38,7 @@ export default function Courses() {
       setAddCourseShow(false);
       reset();
       setError(null);
+      refetch();
     } catch (error) {
       setError(error.response.data.message);
     }
@@ -50,29 +46,43 @@ export default function Courses() {
 
   return (
     <Layout>
-      <h1 className="font-semibold text-3xl mb-5">Manage Courses</h1>
-      <hr />
-      {authenticatedUser.role !== 'user' ? (
-        <button
-          className="btn my-5 flex gap-2 w-full sm:w-auto justify-center"
-          onClick={() => setAddCourseShow(true)}
-        >
-          <Plus /> Add Course
-        </button>
-      ) : null}
+      <div className="flex justify-between items-center mb-5">
+        <div className="flex items-center gap-2">
+          <BookOpen className="text-brand-primary" size={36} />
+          <h1 className="font-semibold text-3xl">Manage Courses</h1>
+        </div>
+        <ThemeButton />
+      </div>
+      <hr className="border-brand-active mb-5" />
+      {authenticatedUser.role !== 'user' && (
+        <div className="flex flex-col sm:flex-row gap-2 justify-between my-5">
+          <button
+            className="btn flex gap-2 w-full sm:w-auto justify-center"
+            onClick={() => setAddCourseShow(true)}
+          >
+            <Plus /> Add Course
+          </button>
+          <button
+            className="btn flex gap-2 w-full sm:w-auto justify-center"
+            onClick={() => refetch()}
+          >
+            <RefreshCw /> Refresh
+          </button>
+        </div>
+      )}
 
-      <div className="table-filter">
-        <div className="flex flex-row gap-5">
+      <div className="table-filter mb-5">
+        <div className="flex flex-col md:flex-row gap-5">
           <input
             type="text"
-            className="input w-1/2"
+            className="input w-full md:w-1/2"
             placeholder="Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
           <input
             type="text"
-            className="input w-1/2"
+            className="input w-full md:w-1/2"
             placeholder="Description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -82,7 +92,6 @@ export default function Courses() {
 
       <CoursesTable data={data} isLoading={isLoading} />
 
-      {/* Add User Modal */}
       <Modal show={addCourseShow}>
         <div className="flex">
           <h1 className="font-semibold mb-3">Add Course</h1>
@@ -118,6 +127,14 @@ export default function Courses() {
             required
             {...register('description')}
           />
+          <input
+            type="text"
+            className="input"
+            placeholder="Image"
+            disabled={isSubmitting}
+            required
+            {...register('imageUrl')}
+          />
           <button className="btn" disabled={isSubmitting}>
             {isSubmitting ? (
               <Loader className="animate-spin mx-auto" />
@@ -125,11 +142,11 @@ export default function Courses() {
               'Save'
             )}
           </button>
-          {error ? (
-            <div className="text-red-500 p-3 font-semibold border rounded-md bg-red-50">
+          {error && (
+            <div className="text-red-500 p-3 font-semibold border rounded-md bg-red-50 dark:bg-red-800 dark:text-red-200">
               {error}
             </div>
-          ) : null}
+          )}
         </form>
       </Modal>
     </Layout>

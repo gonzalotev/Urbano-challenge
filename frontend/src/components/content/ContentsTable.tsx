@@ -1,14 +1,12 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { AlertTriangle, Loader, X } from 'react-feather';
 import { useForm } from 'react-hook-form';
 
+import { Modal, Table, TableItem } from '../../components';
 import useAuth from '../../hooks/useAuth';
 import Content from '../../models/content/Content';
 import UpdateContentRequest from '../../models/content/UpdateContentRequest';
 import contentService from '../../services/ContentService';
-import Modal from '../shared/Modal';
-import Table from '../shared/Table';
-import TableItem from '../shared/TableItem';
 
 interface ContentsTableProps {
   data: Content[];
@@ -27,6 +25,10 @@ export default function ContentsTable({
   const [selectedContentId, setSelectedContentId] = useState<string>();
   const [error, setError] = useState<string>();
   const [updateShow, setUpdateShow] = useState<boolean>(false);
+  const [orderBy, setOrderBy] = useState<string>('');
+  const [order, setOrder] = useState<'asc' | 'desc'>('asc');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const perPage = 10;
 
   const {
     register,
@@ -62,11 +64,49 @@ export default function ContentsTable({
       setError(error.response.data.message);
     }
   };
+  const handleSort = (field: string) => {
+    if (orderBy === field) {
+      setOrder(order === 'asc' ? 'desc' : 'asc');
+    } else {
+      setOrderBy(field);
+      setOrder('asc');
+    }
+  };
+
+  const sortedData = useMemo(() => {
+    if (orderBy && order) {
+      return [...data].sort((a, b) => {
+        if (order === 'asc') {
+          return a[orderBy] > b[orderBy] ? 1 : -1;
+        } else {
+          return a[orderBy] < b[orderBy] ? 1 : -1;
+        }
+      });
+    }
+    return data;
+  }, [data, orderBy, order]);
+
+  const paginatedData = useMemo(() => {
+    if (sortedData && sortedData.length > 0) {
+      const startIndex = (currentPage - 1) * perPage;
+      return sortedData.slice(startIndex, startIndex + perPage);
+    }
+    return [];
+  }, [sortedData, currentPage, perPage]);
+
+  const nextPage = () => setCurrentPage((prevPage) => prevPage + 1);
+  const prevPage = () => setCurrentPage((prevPage) => prevPage - 1);
 
   return (
     <>
-      <div className="table-container">
-        <Table columns={['Name', 'Description', 'Created']}>
+      <div className="table-container dark:bg-gray-800">
+        <Table
+          columns={['Name', 'Description', 'Created']}
+          orderBy={orderBy}
+          order={order}
+          onSort={handleSort}
+        >
+          {' '}
           {isLoading
             ? null
             : data.map(({ id, name, description, dateCreated }) => (
@@ -209,6 +249,19 @@ export default function ContentsTable({
           </form>
         </Modal>
       ) : null}
+      <div className="flex justify-between mt-5">
+        <button className="btn" onClick={prevPage} disabled={currentPage === 1}>
+          Previous
+        </button>
+        <span>Page {currentPage}</span>
+        <button
+          className="btn"
+          onClick={nextPage}
+          disabled={paginatedData.length < perPage}
+        >
+          Next
+        </button>
+      </div>
     </>
   );
 }

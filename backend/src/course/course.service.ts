@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { ILike } from 'typeorm';
+import { ILike, FindManyOptions } from 'typeorm';
 
 import { CreateCourseDto, UpdateCourseDto } from './course.dto';
 import { Course } from './course.entity';
@@ -15,17 +15,40 @@ export class CourseService {
   }
 
   async findAll(courseQuery: CourseQuery): Promise<Course[]> {
-    Object.keys(courseQuery).forEach((key) => {
-      courseQuery[key] = ILike(`%${courseQuery[key]}%`);
-    });
-    return await Course.find({
-      where: courseQuery,
+    const whereClause: any = {};
+    const findOptions: FindManyOptions<Course> = {
+      where: {},
       order: {
         name: 'ASC',
         description: 'ASC',
       },
-    });
+    };
+
+    if (courseQuery.name) {
+      whereClause.name = ILike(`%${courseQuery.name}%`);
+    }
+    if (courseQuery.description) {
+      whereClause.description = ILike(`%${courseQuery.description}%`);
+    }
+    if (courseQuery.imageUrl) {
+      whereClause.imageUrl = ILike(`%${courseQuery.imageUrl}%`);
+    }
+
+    if (courseQuery.sortBy && courseQuery.sortOrder) {
+      findOptions.order = {
+        [courseQuery.sortBy]: courseQuery.sortOrder,
+      };
+    }
+
+    if (courseQuery.limit) {
+      findOptions.take = courseQuery.limit;
+    }
+
+    findOptions.where = whereClause;
+
+    return await Course.find(findOptions);
   }
+
 
   async findById(id: string): Promise<Course> {
     const course = await Course.findOne(id);

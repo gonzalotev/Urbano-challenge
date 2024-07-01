@@ -27,7 +27,9 @@
     "start": "craco start",
     "build": "craco build",
     "test": "craco test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}' --fix && prettier --write 'src/**/*.{js,jsx,ts,tsx,json,html,css,scss}'",
+    "lint:check": "eslint 'src/**/*.{js,jsx,ts,tsx}' && prettier --check 'src/**/*.{js,jsx,ts,tsx,json,html,css,scss}'"
   },
   "eslintConfig": {
     "extends": [
@@ -60,11 +62,12 @@
   "proxy": "http://localhost:5000",
   "devDependencies": {
     "@types/react-router-dom": "^5.1.7",
-    "autoprefixer": "^9",
+    "autoprefixer": "^9.8.6",
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
-    "postcss": "^7",
+    "postcss": "^7.0.39",
     "prettier": "^2.2.1",
-    "tailwindcss": "npm:@tailwindcss/postcss7-compat"
+    "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.2.17"
   }
 }
+ 

@@ -132,6 +132,7 @@ describe('CourseController', () => {
       const created = await controller.save({
         name: 'test',
         description: 'test',
+        imageUrl: 'test.jpg',
       });
       expect(created.id).toBe('testid');
       expect(created.name).toBe('test');
